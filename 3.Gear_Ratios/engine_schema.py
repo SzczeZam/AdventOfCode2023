@@ -50,7 +50,7 @@ def findIndicies(obs_list):
 
 def isValid(currentLOC, LOCs):
     lC = currentLOC[0]
-    hC = currentLOC[1]
+    hC = currentLOC[1]-1
     valid = False
     matchIndex = 0
 
@@ -79,16 +79,15 @@ def findAdjacent(LOCs, parts):
         curIndex = parts[1][i]
         #loop through symbol matches to see if indicies are in range
         check=isValid(curIndex,LOCs)
-        print(check)
         if check[0]:
-            matchedNumbers.append(partNumbers[i])
-    print(matchedNumbers)
-
+            matchedNumbers.append(int(partNumbers[i]))
+    return matchedNumbers
 
 
 
 def findPartNumbers(schemaLines):
     # loop through supplied lines
+    totalValidParts = []
     for i in range(0, len(schemaLines)):
         # store relevant lines (above and below) for each line
         lineData = [
@@ -98,9 +97,8 @@ def findPartNumbers(schemaLines):
             ]
         dataArr = findIndicies(lineData)
         partNums = findAdjacent(dataArr[0], dataArr[1])
-
-
-
+        totalValidParts += partNums
+    return totalValidParts
 
 
 
@@ -110,9 +108,11 @@ def main():
     sample= []
     for i in range(0,3):
         sample.append(lines[i])
-
     # sample for testing
-    validNumbers = findPartNumbers(sample)
+    
+    validNumbers = findPartNumbers(lines)
+    print(validNumbers)
+    print(sum(validNumbers))
 
 main() 
 

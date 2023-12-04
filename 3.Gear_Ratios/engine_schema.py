@@ -1,5 +1,7 @@
 import sys
 import re
+
+line="""_____________________________________________"""
 data= sys.argv[1]
 flag= sys.argv[2]
 
@@ -22,7 +24,7 @@ def findIndicies(obs_list):
     
 
     re_top_symbols = re.finditer(cap_sym, obs_list[0])
-    re_current_symbols = re.finditer(cap_sym, obs_list[1])
+    re_current_symbols = re.finditer(cap_sym, obs_list[1], flags=re.MULTILINE)
     re_bottom_symbols = re.finditer(cap_sym, obs_list[2])
     
     re_gears = re.finditer(cap_gear, obs_list[1])
@@ -83,35 +85,63 @@ def findIndicies(obs_list):
 def isGearRatio(gear, LOCs, digits):
     isGR = False
     center_values = False
+
+
+    
     def hasAdjVal(index, loc_list, dlist):
         isAdjacent = False
-        number = 0
+        res = [False]
         for i in range(0,len(loc_list)):
             loc = loc_list[i]
             lVal = loc[0]
             hVal = loc[1]
             if lVal-1 <= index  and index <= hVal:
                 isAdjacent = True
-                number = dlist[i]
-        return [isAdjacent, number]
+                res= [True, dlist[i]]
+        return res
 
     def centerAdj(index, center_locs, center_dig):
         numbers = []
+        hasRightValue = False
+        hasLeftValue = False
         for i in range(0, len(center_locs)):
             lItem = center_locs[i][1]
             rItem = 0 if i == len(center_locs)-1 else center_locs[i+1][0]
-            if int(lItem) == int(index) and int(rItem) == index+1:
+            if int(lItem) == int(index):
+                hasLeftValue = True
+                numbers.append(center_dig[i])
+            if int(rItem) == index+1:
+                hasRightValue = True
+                numbers.append(center_dig[i+1])
+            if hasLeftValue and hasRightValue:
                 nonlocal center_values
                 center_values = True
-                numbers = [center_dig[i], center_dig[i+1]]
+                   
         return numbers
 
     topCheck= hasAdjVal(gear,LOCs[0],digits[0])
     centerCheck= centerAdj(gear, LOCs[1], digits[1])
     bottomCheck= hasAdjVal(gear,LOCs[2], digits[2])
+    LCheck= [False]
+    tb_out = [] 
+    
+    if topCheck[0]:
+        tb_out.append(topCheck[1])
+    if bottomCheck[0]:
+        tb_out.append(bottomCheck[1])
     if topCheck[0] and bottomCheck[0]:
         isGR = True
-    return [isGR, center_values, centerCheck, [topCheck[1], bottomCheck[1]] ]
+    tb = topCheck[0] or bottomCheck[0]
+    if not isGR and not center_values:
+        print("************************************************************")
+        if len(centerCheck) > 0:
+            if tb:
+                print(line+line+line)
+                print(tb_out)
+                LCheck= [True, [centerCheck[0],tb_out[0]]]
+
+                
+    return [isGR, center_values, centerCheck, tb_out, LCheck]
 
 def isValid(currentLOC, LOCs):
     lC = currentLOC[0]
@@ -155,19 +185,37 @@ def findGearRatios(top, center, bottom):
     validRatios = []
     srcRatios= []
     #for each gear location
+    print(gearLOCs)
     for i in range(0,len(gearLOCs)):
         gear = gearLOCs[i]
         gearCheck = isGearRatio(gear, [ top[1], center[1], bottom[1] ], [top[0], center[0], bottom[0]])
+        print(gearCheck)
+        print(f"gear index: {gear}")
+
         if gearCheck[0]:
             tg=int(gearCheck[3][0])
             bg=int(gearCheck[3][1])
             validRatios.append(tg*bg)
             srcRatios.append([tg,bg])
+            print(f"top value {tg} * bottom value {bg}")
+
         if gearCheck[1]:
             lValue=int(gearCheck[2][0])
             rValue=int(gearCheck[2][1])
             validRatios.append(lValue*rValue)
             srcRatios.append([lValue,rValue])
+            print(f"left value {lValue} * right value {rValue}")
+
+        if gearCheck[4][0]:
+            print("found L")
+            xN = int(gearCheck[4][1][0])
+            yN = int(gearCheck[4][1][1])
+            validRatios.append(xN*yN)
+            srcRatios.append([xN,yN])
+            print(f"x{xN} y{yN}")
+        if gearCheck[0] or gearCheck[1]:
+            print("!VALID!")
+        print(line)
 
     return [validRatios,srcRatios]
 
@@ -186,6 +234,14 @@ def findPartNumbers(schemaLines):
             "" if i == len(schemaLines)-1 else schemaLines[i+1]
             ]
         dataArr = findIndicies(lineData)
+
+        print(f"""
+        -- KEY- -- 
+        ln {format(i, '03d')}: >> {lineData[0]}
+        ln {format(i+1, '03d')}: >> {lineData[1]}
+        ln {format(i+2, '03d')}: >> {lineData[2]}
+        """)
+
         match flag:
             case "p":
                 partNums = findAdjacent(dataArr[0], dataArr[2])
@@ -194,6 +250,7 @@ def findPartNumbers(schemaLines):
                 gearRatios = findGearRatios(dataArr[1],dataArr[2],dataArr[3])
                 totalValidParts += gearRatios[0]
                 src += gearRatios[1]
+        print(line)
     return [totalValidParts, src]
 
 

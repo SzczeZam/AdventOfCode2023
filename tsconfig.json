@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": ["es2015", "es2021", "dom"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./utils/dist"
+  },
+  "include": ["./**/*"],
+  "exclude": ["node_modules"]
+}

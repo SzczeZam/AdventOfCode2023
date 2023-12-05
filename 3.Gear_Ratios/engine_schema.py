@@ -1,4 +1,4 @@
-import sys
+            :import sys
 import re
 
 line="""_____________________________________________"""
@@ -234,12 +234,12 @@ def findPartNumbers(schemaLines):
             "" if i == len(schemaLines)-1 else schemaLines[i+1]
             ]
         dataArr = findIndicies(lineData)
-
+        ln=[str(i) for i in range(0,len(lineData[1]))]
         print(f"""
-        -- KEY- -- 
-        ln {format(i, '03d')}: >> {lineData[0]}
-        ln {format(i+1, '03d')}: >> {lineData[1]}
-        ln {format(i+2, '03d')}: >> {lineData[2]}
+        -- KEY- -- {" ".join(ln)} 
+        ln {format(i, '03d')}: >> {" ".join(lineData[0])}
+        ln {format(i+1, '03d')}: >> {" ".join(lineData[1])}
+        ln {format(i+2, '03d')}: >> {" ".join(lineData[2])}
         """)
 
         match flag:
@@ -259,11 +259,11 @@ def main():
     print("✨running script✨")
     lines = parseData(data)
     sample= []
-    for i in range(0,5):
+    for i in range(0,35):
         sample.append(lines[i])
     # sample for testing
     
-    validNumbers = findPartNumbers(lines)
+    validNumbers = findPartNumbers(sample)
     print(f"{len(lines)} lines parsed")
     print(f"{len(validNumbers[0])} {'gear ratios' if flag == 'g' else 'valid numbers'} found")
     print(sum(validNumbers[0]))

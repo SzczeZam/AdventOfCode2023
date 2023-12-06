@@ -36,17 +36,24 @@ def seed_to_loc(seed, map_list):
     for tmlist in map_list:
         val = traverse_map(path[-1], tmlist)
         path.append(val)
-    print("SEED:_______"+ seed)
-    print(path)
+    print("SEED: "  + str(seed))
     return path[-1] 
 
 #for item in numeral_list:
 #    print(item)
 
 print("seeds: ",seeds)
+seed_ranges = [ (seeds[0][i], seeds[0][i+1]) for i in range(0,len(seeds[0]),2) ]
 
+total_seeds = []
+for r_pair in seed_ranges:
+    start = int(r_pair[0])
+    end = start + int(r_pair[1]) 
+    for value in range(start,end):
+        total_seeds.append(value)
 
-locations = [ seed_to_loc(seed,numeral_list[1:]) for seed in seeds[0]]
+print(len(total_seeds))
+locations = [ seed_to_loc(seed,numeral_list[1:]) for seed in total_seeds]
 print(locations)
 print(min(locations))
 

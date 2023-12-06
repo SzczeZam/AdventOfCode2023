@@ -12,10 +12,13 @@ win_amount_list = [ len(i) for i in t_list ]
 
 points = []
 for wins in win_amount_list:
-    value = 1   
-    for win in range(0,wins):
+    value = 1 if wins > 0 else 0 
+    for win in range(0,wins-1):
+        print(value)
         value=value*2
     points.append(value)
 
+print(win_amount_list)
 print(points)
+
 print(sum(points))
